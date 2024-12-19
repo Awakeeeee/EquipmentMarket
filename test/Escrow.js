@@ -89,12 +89,52 @@ describe("Equipment Market Test", () => {
         it("NTF info check", async () => {
             const info = await contract_escrow.products(1); //注意不是[]
             expect(info.is_on_sale).to.be.true;
-            expect(info.price.toString()).to.equal(tokens(10).toString()); //equal不能直接比较uint256,在js里它的类型是BigNumber,不像基本数字类型一样使用
+            expect(info.price.toString()).to.equal(tokens(10).toString()); //这里是js,solidity中的uint256是用js的BigNumber类型表示,该类型不像普通数字一样能做比较,所以转为string对比
             expect(info.deposit.toString()).to.equal(tokens(1).toString());
             expect(info.buyer).equal(buyer.address);
         });
     });
 
+    describe(("- Deposit confirmation"), async () => {
+
+        it("Pay Deposit", async () => {
+            //{value:..}是仅限这个测试插件中对payable function附加货币的语法
+            let transaction_deposit = await contract_escrow.connect(buyer).PayDeposit(1, { value: tokens(5) });
+            await transaction_deposit.wait();
+            let check = await contract_escrow.GetBalance();
+            expect(check.toString()).to.equal(tokens(5).toString());
+        });
+
+    });
+
+    describe(("- Inspection confirmation"), async () => {
+        
+        it("Inspector verify", async () => {
+            let transaction_ins = await contract_escrow.connect(inspector).InspectionVerify(1, true);
+            await transaction_ins.wait();
+            const result = await contract_escrow.CheckInspectionResult(1);
+            expect(result).to.be.equal(true);
+        });
+
+    });
+
+    describe(("- Everyone ready confirmation"), async () => {
+        
+        it("Say ready", async () => {
+            let transaction_ready = await contract_escrow.connect(buyer).Ready(1);
+            await transaction_ready.wait();
+            transaction_ready = await contract_escrow.connect(seller).Ready(1);
+            await transaction_ready.wait();
+            transaction_ready = await contract_escrow.connect(inspector).Ready(1);
+            await transaction_ready.wait();
+
+            //注意js中这个取map of map的语法
+            expect(await contract_escrow.agrees(1, buyer.address)).to.be.equal(true);
+            expect(await contract_escrow.agrees(1, seller.address)).to.be.equal(true);
+            expect(await contract_escrow.agrees(1, inspector.address)).to.be.equal(true);
+        });
+
+    });
 })
 
 //1.
