@@ -58,6 +58,7 @@ contract Escrow
     function Host(uint256 nft_ID, uint256 _price, uint256 _deposit, address _buyer) public OnlySeller()
     {
         //IERC721(nft_address)是类型转换
+        //transferFrom将NFT代币从msg.sender转移至本合约中
         IERC721(nft_address).transferFrom(msg.sender, address(this), nft_ID);
 
         ProductInfo memory entry = ProductInfo({
@@ -72,9 +73,11 @@ contract Escrow
 
     //buyer调用这个函数来交押金
     //该函数可能发生货币支付,所以需要标注payable否则交易无法进行
+    //调用端通过PayDeposit(1, {value: xxx})来为msg.value赋值, 这样写了以后调用时转移就已经发生
     function PayDeposit(uint256 nft_ID) public payable OnlyBuyer(nft_ID)
     {
         require(msg.value >= products[nft_ID].deposit);
+        //
     }
 
     //该合约发生货币转移时自动触发的内置函数
@@ -101,5 +104,29 @@ contract Escrow
     function Ready(uint256 nid) public
     {
         agrees[nid][msg.sender] = true; //mark function caller is ready
+    }
+
+    function ExecuteSale(uint256 nid) public
+    {
+        require(products[nid].inspected); //验证监管已同意
+        require(agrees[nid][products[nid].buyer]); //买家声称过自己已经就绪 下同
+        require(agrees[nid][seller]);
+        require(agrees[nid][lender]);
+        require(address(this).balance >= products[nid].price); //合约余额足够支付价格
+
+        //标记已卖出
+        products[nid].is_on_sale = false;
+
+        //钱给seller
+        //call,一种转移ETH的方式,这里把本合约的余额全部转移到seller账户
+        //payable将seller地址转为可交易地址,如果seller声明是payable address则不需要再转
+        //{value: amount}是特殊语法,填写发送多少货币
+        //call的函数参数空字符串,意思是不执行额外函数,仅转移货币
+        (bool success,) = payable(seller).call{value: address(this).balance}("");
+
+        require(success);
+
+        //货给buyer
+        IERC721(nft_address).transferFrom(address(this), products[nid].buyer, nid);
     }
 }

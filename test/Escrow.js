@@ -29,9 +29,8 @@ describe("Equipment Market Test", () => {
         buyer = robots[1];
         lender = robots[2];
         inspector = robots[3];
-        buyer = robots[4];
 
-        //hardhat测试环境中创建一个用于操作智能合约的对象,例如可以用来部署这个合约
+        //hardhat测试环境中创建一个用于操作智能合约的对象(factory: ContractFactory),例如可以用来部署这个合约
         let factory = await ethers.getContractFactory('Equipment');
         contract_market = await factory.deploy();
         await contract_market.deployed();
@@ -134,6 +133,49 @@ describe("Equipment Market Test", () => {
             expect(await contract_escrow.agrees(1, inspector.address)).to.be.equal(true);
         });
 
+    });
+
+    describe(("Execute Sale"), async () => {
+
+        beforeEach(async () => {
+            //买家交购买ntf的订金
+            let transaction = await contract_escrow.connect(buyer).PayDeposit(1, { value: tokens(5) });
+            await transaction.wait();
+
+            //Inspector声明已经通过检查
+            transaction = await contract_escrow.connect(inspector).InspectionVerify(1, true);
+            await transaction.wait();
+
+            transaction = await contract_escrow.connect(buyer).Ready(1);
+            await transaction.wait();
+
+            transaction = await contract_escrow.connect(seller).Ready(1);
+            await transaction.wait();
+
+            transaction = await contract_escrow.connect(lender).Ready(1);
+            await transaction.wait();
+
+
+            //? 之前的订金咋办 现在escrow有10个代币吗
+            await lender.sendTransaction({ to: contract_escrow.address, value: tokens(5) })
+
+
+            //尝试执行
+            transaction = await contract_escrow.connect(seller).ExecuteSale(1);
+            await transaction.wait();
+        });
+
+        it("Check NTF is now buyer's", async () => {
+
+            let owner = await contract_market.ownerOf(1);
+            expect(owner).to.be.equal(buyer.address);
+
+        });
+
+        //TODO now working, owner problem?
+        it("Check seller gets money", async () => {
+            expect(await seller.getBalance()).to.be.equal(10);
+        });
     });
 })
 
