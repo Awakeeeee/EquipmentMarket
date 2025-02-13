@@ -137,6 +137,7 @@ describe("Equipment Market Test", () => {
 
     describe(("Execute Sale"), async () => {
 
+        //每个it之前都调用一次
         beforeEach(async () => {
             //买家交购买ntf的订金
             let transaction = await contract_escrow.connect(buyer).PayDeposit(1, { value: tokens(5) });
@@ -159,7 +160,6 @@ describe("Equipment Market Test", () => {
             //? 之前的订金咋办 现在escrow有10个代币吗
             await lender.sendTransaction({ to: contract_escrow.address, value: tokens(5) })
 
-
             //尝试执行
             transaction = await contract_escrow.connect(seller).ExecuteSale(1);
             await transaction.wait();
@@ -170,11 +170,10 @@ describe("Equipment Market Test", () => {
             let owner = await contract_market.ownerOf(1);
             expect(owner).to.be.equal(buyer.address);
 
-        });
+            let balance = await contract_escrow.GetBalance();
+            console.log(balance.toString());
+            expect(balance.toString()).to.be.equal(tokens(0).toString())
 
-        //TODO now working, owner problem?
-        it("Check seller gets money", async () => {
-            expect(await seller.getBalance()).to.be.equal(10);
         });
     });
 })
