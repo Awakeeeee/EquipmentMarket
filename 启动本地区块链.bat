@@ -1,2 +1,3 @@
 @echo off
-npx hardhat node
+call npx hardhat node
+cmd /k

@@ -18,7 +18,7 @@ async function main()
     await ct_market.deployed()
     console.log(`Equipment合约已部署在: ${ct_market.address}"`)
 
-    let transaction = await ct_market.connect(seller).Mint("https://violet-worthwhile-frog-952.mypinata.cloud/ipfs/bafkreigegdsswbwtgm4tw2w5cdyxtpl5bprjibwzhzwppztscfq2fngnre")
+    let transaction = await ct_market.connect(seller).Mint("https://violet-worthwhile-frog-952.mypinata.cloud/ipfs/bafkreidp7i2pweuvirnekdh3w24ar2fa5qvmzyk4o4nq7d7dnuty4zag5a")
     await transaction.wait()
     console.log("创建NTF:青铜斧")
 
