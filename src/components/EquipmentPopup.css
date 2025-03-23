@@ -1,0 +1,157 @@
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 10px;
+    position: relative;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-button:hover {
+    color: #000;
+}
+
+.equipment-details {
+    display: flex;
+    gap: 2rem;
+}
+
+.equipment-image {
+    flex: 0 0 300px;
+}
+
+.equipment-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.equipment-info {
+    flex: 1;
+}
+
+.equipment-info h2 {
+    margin: 0 0 1rem 0;
+    color: #333;
+}
+
+.description {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.attributes {
+    margin-bottom: 1.5rem;
+}
+
+.attribute {
+    margin-bottom: 0.5rem;
+}
+
+.attribute-trait {
+    font-weight: bold;
+    margin-right: 0.5rem;
+    color: #333;
+}
+
+.attribute-value {
+    color: #666;
+}
+
+.price-info {
+    background-color: #f5f5f5;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.price-item:last-child {
+    margin-bottom: 0;
+}
+
+.label {
+    color: #666;
+}
+
+.value {
+    font-weight: bold;
+    color: #333;
+}
+
+.action-button {
+    margin-top: 1rem;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.action-button.seller {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.action-button.buyer {
+    background-color: #2196F3;
+    color: white;
+}
+
+.action-button.inspector {
+    background-color: #FF9800;
+    color: white;
+}
+
+.action-button.lender {
+    background-color: #9C27B0;
+    color: white;
+}
+
+.action-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .equipment-details {
+        flex-direction: column;
+    }
+
+    .equipment-image {
+        flex: 0 0 auto;
+    }
+} 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers'; //ehters是用于区块链交互的js独立三方库,安装hardhat时会依赖
 import Navigation from './components/Navigation.js';
+import EquipmentPopup from './components/EquipmentPopup.js';
 
 import Equipment from './abis/Equipment.json' //这个文件是hardhat编译后的XXX.json ABI中只提取abi数组部分的文件 用于创建Contract
 import Escrow from './abis/Escrow.json'
@@ -13,6 +14,8 @@ function App()
     const [market, setMarket] = useState(null)
     const [escrow, setEscrow] = useState(null)
     const [equipments, setEquipments] = useState([]) //区块链上装备列表
+    const [selectedEquipment, setSelectedEquipment] = useState(null)
+    const [showPopup, setShowPopup] = useState(false)
 
     const loadBlockchain = async() => {
         //window是来自浏览器的接口 window.ethereum是浏览器中的区块链钱包 之所以能访问到是在浏览器中安装metamask时预设的
@@ -38,8 +41,6 @@ function App()
         const equipments = []
         for(var i = 1; i <= supplies; ++i){
             const uri = await market_obj.tokenURI(i); //inherited method
-            //TODO
-            //TODO deploy.js中修改了uri无法生效 pinata都删了老的uri了这里读到的还是老地址 并且还能读到（说明pinata的删除不是我想象的删除）
             console.log(uri)
             const response = await fetch(uri); //javascript发起http请求的函数
             const meta = await response.json();
@@ -57,6 +58,16 @@ function App()
         })
 
 
+    }
+
+    const handleEquipmentClick = (equipment) => {
+        setSelectedEquipment(equipment);
+        setShowPopup(true);
+    }
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+        setSelectedEquipment(null);
     }
 
     //当关注项传入[]空时意味着仅在组件挂在时调用,类似unity Monobehaviour的Start
@@ -80,17 +91,17 @@ function App()
 
                 <div className='cards'>
                     {equipments.map((ep, index) => (
-                        <div className='card' key={index}>
+                        <div className='card' key={index} onClick={() => handleEquipmentClick(ep)}>
                             <div className='card__image'>
                                 <img src={ep.image} alt="Equipment" />
                             </div>
                             <div className='card__info'>
-                                {/* <h4>{ep.attributes[0].value} ETH</h4>
+                                <h4>{ep.attributes[0].value} ETH</h4>
                                 <p>
-                                    <strong>{ep.attributes[1].value}</strong> bds |
-                                    <strong>{ep.attributes[2].value}</strong> ba |
-                                    <strong>{ep.attributes[3].value}</strong> sqft
-                                </p> */}
+                                    <strong>{ep.attributes[1].value}</strong> |
+                                    <strong>{ep.attributes[2].value}</strong> |
+                                    <strong>{ep.attributes[3].value}</strong>
+                                </p>
                                 <p>{ep.description}</p>
                             </div>
                         </div>
@@ -98,6 +109,18 @@ function App()
                 </div>
                 
             </div>
+
+            {showPopup && selectedEquipment && (
+                <EquipmentPopup
+                    equipment={selectedEquipment}
+                    price={5}
+                    deposit={10}
+                    onClose={handleClosePopup}
+                    escrow={escrow}
+                    account={account}
+                    nftId={1} // 这里暂时写死为1，因为deploy.js中只部署了一个NFT
+                />
+            )}
 
         </div>
     );

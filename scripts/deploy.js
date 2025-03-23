@@ -35,7 +35,9 @@ async function main()
     await transaction.wait();
     console.log("装备NTF已委托给Escrow交易")
 
-    //TODO 为什么直接传了买家地址 这时候知道谁来买吗
+    //为什么直接传了买家地址
+    //AI的推断 -> "因为买家地址是deploy.js中定义的，所以直接传了买家地址"
+    //其实就是说只是出于学习目的 随便定义一个买家 忽略买家过来浏览网页的过程
     transaction = await ct_escrow.connect(seller).Host(1, tokens(5), tokens(10), buyer.address)
     console.log("装备NTF已上架")
 }
