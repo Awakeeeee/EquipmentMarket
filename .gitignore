@@ -12,6 +12,8 @@ artifacts/
 *.bin
 *.dbg
 *.json
+!package.json
+!package-lock.json
 
 # Hardhat/Truffle 配置生成的文件
 hardhat.config.ts
